@@ -125,7 +125,13 @@ impl OutPoint {
         let mut txid = [0u8; 32];
         txid.copy_from_slice(&bytes[0..32]);
         let vout = u32::from_le_bytes(bytes[32..36].try_into().unwrap());
-        Ok((OutPoint { txid: Txid(txid), vout }, 36))
+        Ok((
+            OutPoint {
+                txid: Txid(txid),
+                vout,
+            },
+            36,
+        ))
     }
 }
 
@@ -154,7 +160,12 @@ impl Script {
             return Err(BitcoinError::InsufficientBytes);
         }
         let script_bytes = bytes[prefix_size..total].to_vec();
-        Ok((Script { bytes: script_bytes }, total))
+        Ok((
+            Script {
+                bytes: script_bytes,
+            },
+            total,
+        ))
     }
 }
 
@@ -204,7 +215,14 @@ impl TransactionInput {
         let sequence = u32::from_le_bytes(bytes[offset..offset + 4].try_into().unwrap());
         offset += 4;
 
-        Ok((TransactionInput { previous_output, script_sig, sequence }, offset))
+        Ok((
+            TransactionInput {
+                previous_output,
+                script_sig,
+                sequence,
+            },
+            offset,
+        ))
     }
 }
 
@@ -260,7 +278,14 @@ impl BitcoinTransaction {
         let lock_time = u32::from_le_bytes(bytes[offset..offset + 4].try_into().unwrap());
         offset += 4;
 
-        Ok((BitcoinTransaction { version, inputs, lock_time }, offset))
+        Ok((
+            BitcoinTransaction {
+                version,
+                inputs,
+                lock_time,
+            },
+            offset,
+        ))
     }
 }
 
@@ -270,8 +295,16 @@ impl fmt::Display for BitcoinTransaction {
         writeln!(f, "Inputs: {}", self.inputs.len())?;
         for (i, input) in self.inputs.iter().enumerate() {
             writeln!(f, "  Input {}:", i)?;
-            writeln!(f, "    Previous Output Txid: {}", hex::encode(input.previous_output.txid.0))?;
-            writeln!(f, "    Previous Output Vout: {}", input.previous_output.vout)?;
+            writeln!(
+                f,
+                "    Previous Output Txid: {}",
+                hex::encode(input.previous_output.txid.0)
+            )?;
+            writeln!(
+                f,
+                "    Previous Output Vout: {}",
+                input.previous_output.vout
+            )?;
             writeln!(f, "    ScriptSig Length: {}", input.script_sig.bytes.len())?;
             writeln!(f, "    ScriptSig Bytes: {:?}", input.script_sig.bytes)?;
             writeln!(f, "    Sequence: {}", input.sequence)?;
